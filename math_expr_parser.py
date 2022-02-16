@@ -3,13 +3,10 @@ import math
 
 
 def prepare_expr(expr: str) -> list:
-    _right_side_pattern_ = '(=)-?[\d\.]+'
-    regex = re.compile(_right_side_pattern_)
-    try:
-        result = expr[regex.search(expr).start() + 1:regex.search(expr).end():]
-    except AttributeError:
-        return [expr, 0]
-    return [expr[:expr.find('='):], float(result)]
+    midle = expr.find('=')
+    if midle == -1:
+        return  [expr,'']
+    return [expr[:midle], expr[midle + 1:]]
 
 
 def to_float(expr: str, regex: re) -> float:
@@ -19,8 +16,12 @@ def to_float(expr: str, regex: re) -> float:
         return 0
     if expr_piece.find('^') != -1:
         expr_piece = expr_piece[:len(expr_piece) - 3:]
-    if expr_piece.find('x') != -1:
-        expr_piece = expr_piece[:len(expr_piece) - 1:]
+
+    try:
+        if expr_piece[-1] not in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']:
+            expr_piece = expr_piece[:len(expr_piece) - 1:]
+    except IndexError:
+        pass
     if expr_piece == '' or expr_piece == '+':
         return 1
     if expr_piece == '-':
@@ -31,8 +32,8 @@ def to_float(expr: str, regex: re) -> float:
 
 
 def parse_string(expr: str) -> list[float]:
-    a_pattern = '[+-]?[0-9\.]{0,}(x\^2)'
-    b_pattern = '[+-]?[\d\.]{0,}x(?!\^)'
+    a_pattern = '[+-]?[0-9\.]{0,}([a-z]\^2)'
+    b_pattern = '[+-]?[0-9\.]{0,}[a-z](?!\^)'
     c_pattern = '(^|\+|-)[0-9\.]+(\+|-|$)'
     first_regex = re.compile(a_pattern)
     second_regex = re.compile(b_pattern)
@@ -44,13 +45,19 @@ def parse_string(expr: str) -> list[float]:
 
 
 def solve_expr(expr: str) -> list[float]:
-    expr, _rightside_ = prepare_expr(expr)
+    left_expr, right_expr = prepare_expr(expr)
     answers = []
-    a, b, c = parse_string(expr)
-    c = c - _rightside_
+    left_a, left_b, left_c = parse_string(left_expr)
+    right_a, right_b, right_c = parse_string(right_expr)
+    a = left_a - right_a
+    b = left_b - right_b
+    c = left_c - right_c
+    print(left_a, left_b, left_c)
+    print(right_a, right_b, right_c)
+    print(a, b, c)
     if a == 0:
         if b != 0:
-            return [-c/b]
+            return [-c / b]
         else:
             return []
     disc = b ** 2 - 4 * a * c

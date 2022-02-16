@@ -7,4 +7,3 @@ app = FastAPI()
 @app.get("/")
 async def solve(expr: str):
     return {"data": solve_expr(expr)}
-
