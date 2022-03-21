@@ -15,5 +15,3 @@ def guess_color(num: int) -> str:
         return "green"
     return 'blue'
 
-
-guess_color(5)
